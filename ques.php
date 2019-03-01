@@ -105,13 +105,13 @@ $o4=$row['o4'];
   }
 
   ul li{
-    color: #AAAAAA;
+    color: #333333;
     display: block;
     position: relative;
     float: left;
     width: 100%;
-    height: 100px;
-    border-bottom: 1px solid #333;
+    height: 50px;
+    /*border-bottom: 1px solid #333;*/
   }
 
   ul li input[type=radio]{
@@ -124,8 +124,8 @@ $o4=$row['o4'];
     position: relative;
     font-weight: 300;
     font-size: 1.35em;
-    padding: 25px 25px 25px 80px;
-    margin: 10px auto;
+    padding: 10px 25px 25px 80px;
+    margin: 0px auto;
     height: 30px;
     z-index: 9;
     cursor: pointer;
@@ -133,7 +133,7 @@ $o4=$row['o4'];
   }
 
   ul li:hover label{
-    color: #FFFFFF;
+    color: green;
   }
 
   ul li .check{
@@ -143,7 +143,7 @@ $o4=$row['o4'];
     border-radius: 100%;
     height: 25px;
     width: 25px;
-    top: 30px;
+    top: 12px;
     left: 20px;
     z-index: 5;
     transition: border .25s linear;
@@ -151,7 +151,7 @@ $o4=$row['o4'];
   }
 
   ul li:hover .check {
-    border: 5px solid #FFFFFF;
+    border: 5px solid green;
   }
 
   ul li .check::before {
@@ -159,26 +159,42 @@ $o4=$row['o4'];
     position: absolute;
     content: '';
     border-radius: 100%;
-    height: 15px;
-    width: 15px;
-    top: 5px;
-    left: 5px;
+    height: 9px;
+    width: 9px;
+    top: 3px;
+    left: 3px;
     margin: auto;
     transition: background 0.25s linear;
     -webkit-transition: background 0.25s linear;
   }
 
   input[type=radio]:checked ~ .check {
-    border: 5px solid #0DFF92;
+    border: 5px solid #2196F3;;
   }
 
   input[type=radio]:checked ~ .check::before{
-    background: #0DFF92;
+    background: #2196F3;;
   }
 
   input[type=radio]:checked ~ label{
-    color: #0DFF92;
+    color: #2196F3;;
   }
+  .points{
+    position: absolute;
+    right: 12.5vw;
+  }
+#submit{
+  background-color: #2196F3;
+  border: 1px solid white;
+  color: white;
+  cursor: pointer;  
+  transition: all 0.25s linear;
+}
+#submit:hover{
+  background-color: white;
+  border: 1px solid #2196F3;
+  color: #2196F3;
+}
 </style>
 
 <body>
@@ -208,9 +224,9 @@ $o4=$row['o4'];
   <li><input type="radio" name="mcq" id="o2" value="2"/><label for="o2"><?php echo "$o2" ?></label><div class="check"><div class="inside"></div></div></li>
   <li><input type="radio" name="mcq" id="o3" value="3"/><label for="o3"><?php echo "$o3" ?></label><div class="check"><div class="inside"></div></div></li>
   <li><input type="radio" name="mcq" id="o4" value="4"/><label for="o4"><?php echo "$o4" ?></label><div class="check"><div class="inside"></div></div></li>
-  </ul>
+  </ul><br>
   <div class="points">Points- <?php echo "$points" ?></div>
-  <button onclick="submi()">submit</button>
+  <button id="submit" onclick="submi()">submit</button>
 </div>
 <div id="added"></div>
 </div>
