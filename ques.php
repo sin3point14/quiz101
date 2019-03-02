@@ -6,15 +6,8 @@ if(!(isset($_SESSION['uid']))){
 if(!(isset($_REQUEST['qid']))){
   echo "<script>window.location='/quizlol/question.php'</script>";
 }
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'quiz');
-define('DB_USER', 'root');
-define('DB_PASSWORD', '');
-$con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die("Failed to connect to MySQL: " . mysqli_error());
-if (mysqli_connect_errno())
-{
-echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+include 'db_access.php';
+
 $query=mysqli_query($con, "Select * from ques where qid='".$_REQUEST['qid']."'") or die("Failed to connect to MySQL: " . mysqli_error($con));
 $row=mysqli_fetch_array($query);
 $qid=$_REQUEST['qid'];;
@@ -207,9 +200,14 @@ $o4=$row['o4'];
     $row = mysqli_fetch_array($query);
   echo "<div style='text-align:center;'>$row[3] <br><i>(@$row[1])</i></div><br><br><div style='text-align:center'>$row[4] Points</div>";
   ?>
-  <a href="#" style="text-align:center;margin-top:60px;" class="w3-bar-item w3-button"><h3>Home</h3></a>
-  <a href="question.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Questions</h3></a>
-  <a href="#" style="text-align:center;" class="w3-bar-item w3-button"><h3>Report</h3></a>
+  <a href="/quizlol/home.php" style="text-align:center;margin-top:60px;" class="w3-bar-item w3-button"><h3>Home</h3></a>
+  <a href="/quizlol/question.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Questions</h3></a>
+  <a href="/quizlol/leaderboard.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Report</h3></a>
+  <?php
+  if($_SESSION['admin']==1){
+    echo '<a href="/quizlol/admin.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Admin Panel</h3></a>';
+  }
+  ?>
 </div>
 <div id="main">
 <button id="openNav" class="w3-button w3-teal w3-xlarge" style="position: absolute;background-color: #2196F3" onclick="w3_open()">&#9776;</button>
@@ -232,8 +230,9 @@ $o4=$row['o4'];
 </div>
 </div>
 <script>
-  function added(){
+  function added(l){
   var x=document.getElementById("added");
+  x.innerHTML=l;
   x.style.marginLeft="-280px";
   setTimeout(function(){x.style.marginLeft="0px";},2500)
 }
@@ -243,8 +242,7 @@ $o4=$row['o4'];
   var xmlhttp= new XMLHttpRequest();
     xmlhttp.onreadystatechange=function(){
         if (this.readyState == 4 && this.status == 200) {
-          document.getElementById('added').innerHTML=this.responseText;
-          added();
+          added(this.responseText);
         }
     };
     xmlhttp.open("POST", "check.php?option="+op+"&qid="+qid, true);

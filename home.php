@@ -3,15 +3,8 @@ session_start();
 if(!(isset($_SESSION['uid']))){
   echo "<script>window.location='index.php'</script>";
 }
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'quiz');
-define('DB_USER', 'root');
-define('DB_PASSWORD', '');
-$con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die("Failed to connect to MySQL: " . mysqli_error());
-if (mysqli_connect_errno())
-{
-echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+include 'db_access.php';
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -55,12 +48,12 @@ echo "Failed to connect to MySQL: " . mysqli_connect_error();
 		font-size: 16px;
 		font-family: arial;
 		padding-top: 13px;
-		border: solid 1px black;
 		text-align: center;
 		display: inline-block;
 		box-sizing: border-box;
 		margin-left: 20px;
     cursor: pointer;
+    margin-bottom: 40px;
 	}
   .q_holder{
     cursor: pointer;
@@ -76,14 +69,16 @@ echo "Failed to connect to MySQL: " . mysqli_connect_error();
   }
   .latest p{
     background-color: #ddffff;
-    padding: 20px;
-    padding-left: 0;s
+    padding-left: 0;
   }
   .latest span{
     background-color: #2196F3;
     padding: 20px;
     color: white;
     margin-right: 20px;
+    width: 60px;
+    display: inline-block;
+    text-align: center;
   }
   .latest_h{
       grid-column-start: -2;
@@ -94,8 +89,12 @@ echo "Failed to connect to MySQL: " . mysqli_connect_error();
   .not_a{
     background-color:#ddffff;
   }
-  .a{
-    background-color:#2196F3;
+  .correct{
+    background-color:#00ff0099;
+    color:white;
+  }
+  .incorrect{
+    background-color:#ff000099;
     color:white;
   }
   .w3-button:hover{
@@ -122,8 +121,13 @@ echo "Failed to connect to MySQL: " . mysqli_connect_error();
   echo "<div style='text-align:center;'>$row[3] <br><i>(@$row[1])</i></div><br><br><div style='text-align:center'>$row[4] Points</div>";
   ?>
   <a href="#" style="text-align:center;margin-top:60px;" class="w3-bar-item w3-button"><h3>Home</h3></a>
-  <a href="question.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Questions</h3></a>
-  <a href="#" style="text-align:center;" class="w3-bar-item w3-button"><h3>Report</h3></a>
+  <a href="/quizlol/question.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Questions</h3></a>
+  <a href="/quizlol/leaderboard.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Leaderboard</h3></a>
+  <?php
+  if($_SESSION['admin']==1){
+    echo '<a href="/quizlol/admin.php" style="text-align:center;" class="w3-bar-item w3-button"><h3>Admin Panel</h3></a>';
+  }
+  ?>
 </div>
 <div id="main">
 <button id="openNav" class="w3-button w3-teal w3-xlarge" onclick="w3_open()">&#9776;</button>
@@ -134,19 +138,17 @@ echo "Failed to connect to MySQL: " . mysqli_connect_error();
 $query=mysqli_query($con, "SELECT MAX(qid)FROM ques") or die("Failed to connect to MySQL: " . mysqli_error($con));
 $row=mysqli_fetch_array($query);
 $max=$row[0];
-$q=array_fill(1,$max,"-");
-$query=mysqli_query($con, "SELECT * FROM answered where uid=".$_SESSION['uid']);
+$q=array_fill(1,$max,"not_a");
+$query=mysqli_query($con, "SELECT * FROM answered where uid=".$_SESSION['uid']." and status=1");
 for($i=1;$row=mysqli_fetch_array($query);$i++){
-	$q[$row[1]]=$row[2];
+	$q[$row[1]]="correct";
+}
+$query=mysqli_query($con, "SELECT * FROM answered where uid=".$_SESSION['uid']." and status=0");
+for($i=1;$row=mysqli_fetch_array($query);$i++){
+  $q[$row[1]]="incorrect";
 }
 for($i=1;$i<=$max;$i++){
-  if($q[$i]=='-'){
-    $class='not_a';
-  }
-  else{
-    $class='a';
-  }
-	echo "<div onclick='question(this)' class='qno ".$class."' id='$i'>".$q[$i]."</div>";
+	echo "<div onclick='question(this)' class='qno ".$q[$i]."' id='$i'>".$i."</div>";
 }
 ?>
 </div>
@@ -169,6 +171,7 @@ echo $row[0];
 </div>
 <script>
   w3_open();
+
 function w3_open() {
   document.getElementById("main").style.marginLeft = "25%";
   document.getElementById("mySidebar").style.width = "25%";

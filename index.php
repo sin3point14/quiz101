@@ -1,3 +1,4 @@
+
 <?php 
 
 //OYE GADHE SESSION VARIABLES ASSIGNMENT CHECK KAR LENA JAB SIGNUP/SIGNIN FAIL HO
@@ -8,15 +9,8 @@ session_start();
 if(isset($_POST['username'])){
 $username=$_POST['username'];
 $pass=hash('sha256', $_POST['pass']);
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'quiz');
-define('DB_USER', 'root');
-define('DB_PASSWORD', '');
-$con = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) or die("Failed to connect to MySQL: " . mysqli_error());
-if (mysqli_connect_errno())
-{
-echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+include 'db_access.php';
+$error='';
 if(isset($_POST['display'])){
 $query=mysqli_query($con, "SELECT MAX(uid)FROM users");
 $row=mysqli_fetch_array($query);
@@ -25,13 +19,13 @@ $uid=$row[0]+1;
 $query=mysqli_query($con, "SELECT * from users WHERE username='".$username."'");
 $row=mysqli_fetch_array($query);
 if($row){
-echo "<script>window.alert('Username already taken, Please try again')</script>";
+$error="added('Username already taken, Please try again');";
 goto a;
 }
 $query=mysqli_query($con, "SELECT * from users WHERE display='".$display."'");
 $row=mysqli_fetch_array($query);
 if($row){
-echo "<script>window.alert('Display Name already taken, Please try again')</script>";
+$error="added('Display name taken, Please try again');";
 goto a;
 }
 $query=mysqli_query($con, "insert into users (uid, username, pass, display, points) values ($uid, '$username', '$pass', '$display', 0)");
@@ -53,13 +47,13 @@ else{
 }
 else{
 sleep(1);
-echo "<script>window.alert('Incorrect username/password, Please try again')</script>";
+$error= "added('Incorrect Username/Password, Please try again');";
 }
 }
 if($row){
 $_SESSION['username']=$username;
 $_SESSION['uid']=$uid;
-$_SESSION['display']=$display;
+$_SESSION['display']=$displaysh;
 $_SESSION['points']=$points;
 if($_SESSION['admin']==1){
 echo "<script>window.location='/quizlol/admin.php'</script>";
@@ -225,7 +219,7 @@ a:
         transition: all 0.5s;
       }
       .container .container-form:before {
-        content: "✔";
+        content: "...";
         position: absolute;
         left: 160px;
         top: -50px;
@@ -293,7 +287,7 @@ a:
         height: 200px;
       }
       .container.active .container-form:before {
-        content: "✔";
+        content: "...";
         position: absolute;
         left: 51px;
         top: 5px;
@@ -330,6 +324,18 @@ a:
       a{
         text-decoration: none;
       }
+      #added{
+    position: fixed;
+    width: 250px;
+    top:80vh;
+    left: 100vw;
+    padding: 10px;
+    font-size: 20px;
+    font-family: arial;
+    background-color: #ddffff;
+    border-left: 6px solid #2196F3;
+    transition: all 0.5s ease;
+  }
     </style>
   </head>
   <body>
@@ -390,28 +396,8 @@ a:
         </div>
       </div>
     </div>
-    <div class="footer">
-      <ul style="list-style-type: none; font-size:10px; margin-right:5px;">
-        <li>
-          <a href="cool url">
-            <b>about
-            </b>
-          </a>
-        </li>
-        <li>
-          <a href='another cool url'>
-            <b>contact us
-            </b>
-          </a>
-        </li>
-        <li>
-          <a href="cool url returns">
-            <b>business
-            </b>
-          </a>
-        </li>
-      </ul>
-    </div>
+  
+    <div id="added"></div>
     <script>
       $(".info-item .btn").click(function(){
         $(".container").toggleClass("log-in");
@@ -420,7 +406,14 @@ a:
       $(".container-form .btn").click(function(){
         $(".container").addClass("active");
       }
-                                     );
+                                 );
+  function added(l){
+  var x=document.getElementById("added");
+  x.innerHTML=l;
+  x.style.marginLeft="-280px";
+  setTimeout(function(){x.style.marginLeft="0px";},2500)
+}
+<?php echo $error; ?>
       function signup(){
         setTimeout(function() {
           var usr=document.getElementById('usrs').value;
@@ -429,7 +422,6 @@ a:
           post('/quizlol/index.php/', {
             username: usr, pass:passw, display: dis}
               );
-          window.location="logup.php?u="+usr+"&p="+pass+"&mob="+mob+"&c="+res;
         }
                    , 1500);
       }
